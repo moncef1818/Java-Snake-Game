@@ -1,8 +1,10 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.Random;
-
+import java.io.*;
 public class GamePanel extends JPanel implements ActionListener {
 
     static final int SCREEN_WIDTH = 600;
@@ -18,6 +20,10 @@ public class GamePanel extends JPanel implements ActionListener {
     int appleY;
     char direction = 'R';
     boolean isRunning = false;
+    int highScore = 0;
+    final String HIGH_SCORE_FILE = "highscorefile.txt";
+    JButton replayButton = new JButton("Replay");
+
     Timer timer;
     Random random;
     GamePanel(){
@@ -30,6 +36,7 @@ public class GamePanel extends JPanel implements ActionListener {
     }
     public void startGame(){
         newApple();
+        loadHighScore();
         isRunning = true;
         timer = new Timer(DELAY,this);
         timer.start();
@@ -49,7 +56,7 @@ public class GamePanel extends JPanel implements ActionListener {
             g.fillOval(appleX, appleY, UNITS_SIZE, UNITS_SIZE);
 
             for (int i = 0; i < bodyParts; i++) {
-                g.setColor((i == 0) ? new Color(0, 100, 0) : new Color(random.nextInt(255),random.nextInt(255),random.nextInt(255)));
+                g.setColor((i == 0) ? new Color(0, 100, 0) : Color.GREEN);
                 g.fillRect(x[i], y[i], UNITS_SIZE, UNITS_SIZE);
             }
 
@@ -90,7 +97,7 @@ public class GamePanel extends JPanel implements ActionListener {
         }
     }
     public void checkCollusion(){
-        for (int i = bodyParts; i < 0 ; i--) {
+        for (int i = bodyParts; i > 0 ; i--) {
             if(x[0]==x[i] && y[0]==y[i]){
                 isRunning = false;
                 break;
@@ -109,16 +116,76 @@ public class GamePanel extends JPanel implements ActionListener {
         FontMetrics fontMetrics = getFontMetrics(g.getFont());
         g.drawString("GAME OVER",(SCREEN_WIDTH - fontMetrics.stringWidth("GAME OVER"))/2 , SCREEN_HEIGHT/2);
 
-        g.setColor(Color.red);
-        g.setFont(new Font("Ink Free",Font.BOLD,75));
-        g.drawString("Score: " + eatenApples ,(SCREEN_WIDTH - fontMetrics.stringWidth("Score: " + eatenApples))/2 , SCREEN_HEIGHT/5);
+
+// Draw Score
+        g.setFont(new Font("Ink Free", Font.BOLD, 40));
+        FontMetrics scoreMetrics = getFontMetrics(g.getFont());
+        g.drawString("Score: " + eatenApples,
+                (SCREEN_WIDTH - scoreMetrics.stringWidth("Score: " + eatenApples)) / 2,
+                SCREEN_HEIGHT / 2 - 100);
+
+// Draw High Score
+        if(highScore < eatenApples){
+            highScore = eatenApples;
+            saveHighScore();
+        }
+        g.drawString("High Score: " + highScore,
+                (SCREEN_WIDTH - scoreMetrics.stringWidth("High Score: " + highScore)) / 2,
+                SCREEN_HEIGHT / 2 + 100);
+
+
+        if (!this.getComponents().toString().contains("Replay")) {
+            replayButton.setBounds((SCREEN_WIDTH - 150) / 2, SCREEN_HEIGHT / 2 + 150, 150, 50);
+            replayButton.setFont(new Font("Ink Free", Font.BOLD, 20));
+            replayButton.setFocusable(false);
+            replayButton.addActionListener(e -> resetGame());
+            this.setLayout(null);
+            this.add(replayButton);
+            this.repaint();
+        }
+
+
     }
 
     public void newApple(){
         appleX = random.nextInt((int)(SCREEN_WIDTH/UNITS_SIZE))*UNITS_SIZE;
         appleY = random.nextInt((int)(SCREEN_HEIGHT/UNITS_SIZE))*UNITS_SIZE;
     }
+    public void resetGame() {
+        eatenApples = 0;
+        bodyParts = 6;
+        direction = 'R';
+        for (int i = 0; i < x.length; i++) {
+            x[i] = 0;
+            y[i] = 0;
+        }
+        this.remove(replayButton); // remove button
+        isRunning = true;
+        newApple();
+        timer.start();
+        repaint();
+    }
 
+    public void loadHighScore(){
+        try (BufferedReader reader = new BufferedReader(new FileReader(HIGH_SCORE_FILE))){
+            String line = reader.readLine();
+            if(line!=null){
+                highScore = Integer.parseInt(line);
+            }
+        }
+        catch (IOException e) {
+            System.out.println("No high score file found. Starting fresh.");
+        }
+    }
+
+    public void saveHighScore(){
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(HIGH_SCORE_FILE))) {
+            writer.write(String.valueOf(highScore));
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        }
+    }
     @Override
     public void actionPerformed(ActionEvent e) {
         if(isRunning){

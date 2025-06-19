@@ -2,23 +2,23 @@
 <launch4jConfig>
   <dontWrapJar>false</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>C:\Users\moncefyak\Desktop\java\snake\Snake\out\artifacts\Snake_jar\Snake.jar</jar>
-  <outfile>C:\Users\moncefyak\Desktop\Snake\snake.exe</outfile>
+  <jar>C:\Users\moncefyak\Desktop\my snake\Snake.jar</jar>
+  <outfile>C:\Users\moncefyak\Desktop\my snake\Snake.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir>.</chdir>
   <priority>normal</priority>
   <downloadUrl></downloadUrl>
   <supportUrl></supportUrl>
-  <stayAlive>true</stayAlive>
+  <stayAlive>false</stayAlive>
   <restartOnCrash>false</restartOnCrash>
   <manifest></manifest>
-  <icon></icon>
+  <icon>C:\Users\moncefyak\Desktop\my snake\snakeico.ico</icon>
   <jre>
     <path>%JAVA_HOME%;%PATH%</path>
     <requiresJdk>false</requiresJdk>
     <requires64Bit>false</requires64Bit>
-    <minVersion>17</minVersion>
+    <minVersion>1.7</minVersion>
     <maxVersion></maxVersion>
   </jre>
 </launch4jConfig>
